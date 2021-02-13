@@ -28,23 +28,25 @@ struct NODE
 void PreOrder(NODE* n);
 void PosOrder(NODE* n);
 void InOrder(NODE* n);
-void NDReplace(NODE* root,NODE* x,NODE* y);
 
 /* Class Definition */
 class RBTree
 {
     private:
         NODE *Tnil;
+        void NDReplace(NODE* root,NODE* x,NODE* y);
+        void PlotRecurse(NODE* node,std::string separator,bool last);
 
         NODE* TreeMinimum(NODE* node);
         NODE* TreeMaximum(NODE* node);
         void RotateRight(NODE* x);
         void RotateLeft(NODE* x);
         void InsertRepairTree(NODE* pNode);
-        void DeleteRepairTree(NODE* pNode);
+        void DeleteRepairTree(NODE* x);
         void fixDelete(NODE* x);
     public:
-        NODE **root;
+        void  plot() ;
+        NODE *root;
         void show(const show_t show) const noexcept;
         void insert(const int key)  noexcept;
         void erase(const int key) ;
