@@ -1,60 +1,61 @@
-#include <iostream>
 #pragma once
+#include <iostream>
+/* 
+Esse codigo foi baseado no livro do cormen 
+Foram testados varios tipos de implemetacoes 
+A menos complexa, e de melhor manutencao se baseia no fato que cada
+folha e qualquer outro node que aponte para NULL(nullptr) na realidade
+aponte para um ponto na memoria que seja do mesmo tipo do node,com cor preta
+
+*/
 
 enum color_t{BLACK,RED};
-enum show_t{PRE,IN,POS};
+enum show_t{INORDER,PREORDER,POSORDER};
 
-struct NODE{
+struct NODE
+{
     int key;
-    enum color_t color;
-    NODE *left;
-    NODE *right;
-    NODE *parent;
-    NODE(const int key):
-        key(key),color(RED),
-        left(nullptr),right(nullptr),parent(nullptr){}
+    NODE* parent = nullptr;
+    NODE* left = nullptr;
+    NODE* right = nullptr;
+    color_t color = RED;
+    NODE()=default;
+    NODE(color_t color):color(color){}//Nodenil
+    NODE(int data,NODE* left=nullptr,NODE* right=nullptr,NODE *parent=nullptr):
+    key(data),parent(parent),left(left),right(right){}
 };
 
-NODE* GetParent(NODE* n);
-NODE* GetGrandParent(NODE* n);
-NODE* GetSibling(NODE* n);
-NODE* GetUncle(NODE* n);
-void RotateLeft(NODE* n);
-void RotateRight(NODE* n);
-
-void InsertRecurse(NODE* root,NODE* n);
-void InsertRepairTree(NODE* n);
-void InsertCase1(NODE* n);
-void InsertCase2(NODE* n);
-void InsertCase3(NODE* n);
-void InsertCase4(NODE* n);
-void InsertCase4Step2(NODE* n);
-
-void InOrder(NODE* n);
 void PreOrder(NODE* n);
 void PosOrder(NODE* n);
+void InOrder(NODE* n);
+void NDReplace(NODE* root,NODE* x,NODE* y);
 
-void CleanTreeRecurse(NODE* n);
-
-// void ReplaceNode(NODE* n,NODE* child);
-// void DeleteOneChild(NODE* n);
-// void DeleteCase1(NODE* n);
-// void DeleteCase2(NODE* n);
-// void DeleteCase3(NODE* n);
-// void DeleteCase4(NODE* n);
-// void DeleteCase5(NODE* n);
-// void DeleteCase6(NODE* n);
-class RBTree{
+/* Class Definition */
+class RBTree
+{
     private:
-        NODE **root;
-    public:
-        void insert(const int key);
-        void remove(const int key);
-        void show(enum show_t show) const noexcept;
-        NODE * search(const int key) const noexcept;
-        NODE * rootNode() const;
+        NODE *Tnil;
 
+        NODE* TreeMinimum(NODE* node);
+        NODE* TreeMaximum(NODE* node);
+        void RotateRight(NODE* x);
+        void RotateLeft(NODE* x);
+        void InsertRepairTree(NODE* pNode);
+        void DeleteRepairTree(NODE* pNode);
+        void fixDelete(NODE* x);
+    public:
+        NODE **root;
+        void show(const show_t show) const noexcept;
+        void insert(const int key)  noexcept;
+        void erase(const int key) ;
+        NODE* search(const int key)const noexcept;
         RBTree();
+        RBTree(std::initializer_list<int> list);
+        RBTree(RBTree &obj) = delete;
+        RBTree(RBTree &&obj) = delete;
+        RBTree operator=(RBTree &obj) = delete;
+        RBTree operator=(RBTree &&obj) = delete;
         ~RBTree();
 };
+
 
