@@ -21,8 +21,8 @@ void PosOrder(NODE* n){
     std::cout<<n->key<<" ";
 }
 
-void NDReplace(NODE* root,NODE* x,NODE* y){
-    if (x->parent == nullptr)
+void RBTree::NDReplace(NODE* root,NODE* x,NODE* y){
+    if (x->parent == Tnil )
         root = y;
     else if(x==x->parent->left)  
         x->parent->left = y;
@@ -54,7 +54,7 @@ void RBTree::RotateLeft(NODE* x){ // Voltar pro meu proprio rotate
 		}
 		y->parent = x->parent;
 		if (x->parent == nullptr) {
-			(*this->root) = y;
+			root = y;
 		} else if (x == x->parent->left) {
 			x->parent->left = y;
 		} else {
@@ -72,7 +72,7 @@ void RBTree::RotateRight(NODE* x){
 		}
 		y->parent = x->parent;
 		if (x->parent == nullptr) {
-			(*this->root) = y;
+			root = y;
 		} else if (x == x->parent->right) {
 			x->parent->right = y;
 		} else {
@@ -122,89 +122,113 @@ void RBTree::InsertRepairTree(NODE* pNode){
             }
 
         }
-        if(pNode == *root)
+        if(pNode == root)
             break;
     }
-    (*this->root)->color = BLACK; 
+    root->color = BLACK; 
 }
-void RBTree::DeleteRepairTree(NODE* pNode){
-    NODE* pAux;
-    while (pNode != *root && pNode->color == BLACK)
+
+void RBTree::DeleteRepairTree(NODE* x){
+    NODE* w;
+    while (x != root && x->color == BLACK) 
     {
-        if(pNode == pNode->parent->left){
-            pAux = pNode->parent->right;
-            if (pAux->color==RED)//Case 3.1
+        if(x == x->parent->left){ // left
+            w = x->parent->right;
+            if (w->color==RED)//Case 1
             {
-                pAux->color = BLACK;
-                pNode->parent->color = RED;
-                RotateLeft(pNode->parent);
-                pAux = pNode->parent->right;
+                w->color = BLACK;
+                x->parent->color = RED;
+                RotateLeft(x->parent);
+                w = x->parent->right;
             }
-            if(pAux->left->color == BLACK && pAux->right->color == BLACK){//case 3.2
-                pAux->color = RED;
-                pNode = pNode->parent;
+            if(w->left->color == BLACK && w->right->color == BLACK){//case 2
+                w->color = RED;
+                x = x->parent;
             }else{
-                if (pAux->right->color == BLACK)//case 3.3
+                if (w->right->color == BLACK)//case 3
                 {
-                    pAux->left->color = BLACK;
-                    pAux->color = RED;
-                    RotateRight(pAux);
-                    pAux = pNode->parent->right;
+                    w->left->color = BLACK;
+                    w->color = RED;
+                    RotateRight(w);
+                    w = x->parent->right;
                 }
-                //case 3.4
-                pAux->color = pNode->parent->color;
-                pNode->parent->color = BLACK;
-                pAux->right->color = BLACK; 
-                RotateLeft(pAux->parent);
-                pNode = *root;
+                //case 4
+                w->color = x->parent->color;
+                x->parent->color = BLACK;
+                w->right->color = BLACK; 
+                RotateLeft(x->parent);
+                x = root;
             }
             
-        }else{
-            pAux = pNode->parent->left;
-            if(pAux->color == RED){ // case 3.1
-                pAux->color = BLACK;
-                pNode->parent->color = RED;
-                RotateRight(pNode->parent);
-                pAux = pNode->parent->left;
+        }else{//right
+            w = x->parent->left;
+            if(w->color == RED){ // case 1
+                w->color = BLACK;
+                x->parent->color = RED;
+                RotateRight(x->parent);
+                w = x->parent->left;
             }
-            if (pAux->right->color == BLACK && pAux->left->color == BLACK)//case 3.2
+            if (w->right->color == BLACK && w->left->color == BLACK)//case 2
             {
-                pAux->color = RED;
-                pNode = pNode->parent;
+                w->color = RED;
+                x = x->parent;
             }else{
-                if(pAux->left->color == BLACK){//case 3.3
-                    pAux->right->color = BLACK;
-                    pAux->color = RED;
-                    RotateLeft(pAux);
-                    pAux = pNode->parent->left;
+                if(w->left->color == BLACK){//case 3
+                    w->right->color = BLACK;
+                    w->color = RED;
+                    RotateLeft(w);
+                    w = x->parent->left;
                 }
-                //case 3.4
-                pNode->color = pNode->parent->color;
-                pNode->parent->color = BLACK;
-                pAux->left->color = BLACK;
-                RotateRight(pNode->parent);
-                pNode = *root;
+                //case 4
+                x->color = x->parent->color;
+                x->parent->color = BLACK;
+                w->left->color = BLACK;
+                RotateRight(x->parent);
+                x = root;
             }
         }
     }
-    pNode->color = BLACK; 
+    x->color = BLACK; 
     
 }
 NODE* RBTree::search(const int key)const noexcept{
-    NODE *pNode = *root;
+    NODE *pNode = root;
     while (pNode != Tnil && pNode->key != key)
         if(key > pNode->key) pNode = pNode->right;
         else pNode = pNode->left;
     return pNode;
     
 }
+void RBTree::PlotRecurse(NODE* node,std::string separator,bool last)  {
+    if(node != Tnil){
+        std::cout<< separator;
+        if(last){
+            std::cout<<"R----";
+            separator+="     ";
+        }else{
+            std::cout<<"L----";
+            separator+="|    ";
+        }
+        std::cout
+            <<node->key
+            <<"("<<(node->color ? "RED" : "BLACK") <<")"<<std::endl;
 
+        PlotRecurse(node->left,separator,false);
+        PlotRecurse(node->right,separator,true);
+    }
+}
+
+void RBTree::plot() {
+    PlotRecurse(root,"",false);
+
+
+}
 
 
 void RBTree::insert(const int key) noexcept{
     NODE* pNode = new NODE(key,Tnil,Tnil);// left = right = Null 
     NODE* pParent = nullptr;
-    NODE* pSentinel = *this->root;
+    NODE* pSentinel = root;
     
     while (pSentinel != Tnil)
     {
@@ -218,7 +242,7 @@ void RBTree::insert(const int key) noexcept{
     if (pParent == nullptr )
     {
         /*Caso seja o primeiro item,sera preto e nao precisara fazer nada*/
-        *this->root = pNode;
+        root = pNode;
         pNode->color = BLACK;
         return;
     }else{
@@ -258,7 +282,7 @@ void RBTree::insert(const int key) noexcept{
 
 void RBTree::erase(const int key) {
     NODE* z = this->search(key);
-    if(z==Tnil || z==nullptr) {
+    if(z == Tnil) {
         throw "Couldn`t find key in the tree";
         return;
     }
@@ -266,26 +290,32 @@ void RBTree::erase(const int key) {
     NODE* x;
     color_t y_original_color = y->color;
     if(z->left == Tnil){
+        std::cout<<"filho a esquerda nil\n";
         x = z->right;
-        NDReplace(*root,z,z->right);
+        NDReplace(root,z,z->right);
     }else if(z->right == Tnil){
+        std::cout<<"filho a direita nil\n";
+
         x=z->left;
-        NDReplace(*root,z,z->left);
+        NDReplace(root,z,z->left);
     }else{
+        std::cout<<"nenhum filho nil\n";
+
         y = TreeMinimum(z->right);
         y_original_color = y->color;
         x = y->right;
         if(y->parent == z){
             x->parent = y;
         }else{
-            NDReplace(*root,y,y->right);
+            NDReplace(root,y,y->right);
             y->right = z->right;
             y->right->parent = y;
         }
-        NDReplace(*root,z,y);
+        NDReplace(root,z,y);
         y->left = z->left;
         y->left->parent = y;
         y->color = z->color;
+        std::cout<<x->key<<std::endl;
     }
     delete z;
     z = nullptr;
@@ -295,14 +325,12 @@ void RBTree::erase(const int key) {
 
 }
 RBTree::RBTree(){
-    root = new NODE*();
     Tnil = new NODE(BLACK);
-    *root = Tnil;
+    root = Tnil;
 }
 RBTree::~RBTree(){
 
-    delete []root;
-    root = nullptr;
+    
     delete Tnil;
     Tnil = nullptr;
 }
