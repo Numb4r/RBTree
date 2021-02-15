@@ -34,7 +34,7 @@ class RBTree
     private:
         NODE *root;
         NODE *Tnil;
-        void NDReplace(NODE* root,NODE* x,NODE* y);
+        void NDReplace(NODE* x,NODE* y);
         void PlotRecurse(NODE* node,std::string separator,bool last);
         NODE* TreeMinimum(NODE* node);
         NODE* TreeMaximum(NODE* node);

@@ -20,9 +20,9 @@ void RBTree::posOrder(NODE* n){
     std::cout<<n->key<<" ";
 }
 
-void RBTree::NDReplace(NODE* root,NODE* x,NODE* y){
+void RBTree::NDReplace(NODE* x,NODE* y){
     if (x->parent == Tnil )
-        root = y;
+        this->root = y;
     else if(x==x->parent->left)  
         x->parent->left = y;
     else
@@ -307,11 +307,11 @@ void RBTree::erase(const int key) {
     color_t y_original_color = y->color;
     if(z->left == Tnil){
         x = z->right;
-        NDReplace(root,z,z->right);
+        NDReplace(z,z->right);
         if(z == root) root = x;
     }else if(z->right == Tnil){
         x=z->left;
-        NDReplace(root,z,z->left);
+        NDReplace(z,z->left);
         if(z == root) root = x;
     }else{
         y = TreeMinimum(z->right);
@@ -320,11 +320,11 @@ void RBTree::erase(const int key) {
         if(y->parent == z){
             x->parent = y;
         }else{
-            NDReplace(root,y,y->right);
+            NDReplace(y,y->right);
             y->right = z->right;
             y->right->parent = y;
         }
-        NDReplace(root,z,y);
+        NDReplace(z,y);
         y->left = z->left;
         y->left->parent = y;
         y->color = z->color;
