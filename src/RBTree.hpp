@@ -21,6 +21,7 @@ struct NODE
     color_t color = RED;
     NODE()=default;
     NODE(color_t color):color(color){}//Nodenil
+    NODE(color_t color,NODE* parent):color(color),parent(parent){}
     NODE(int data,NODE* left=nullptr,NODE* right=nullptr,NODE *parent=nullptr):
     key(data),parent(parent),left(left),right(right){}
 };

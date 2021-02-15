@@ -32,10 +32,9 @@ void RBTree::NDReplace(NODE* root,NODE* x,NODE* y){
 }
 
 
-/*                          Class Implementation                    */
 
 NODE* RBTree::TreeMinimum(NODE* node){
-    while (node->left !=Tnil)
+    while (node->left != Tnil)
         node = node->left;
     return node;
     
@@ -48,38 +47,40 @@ NODE* RBTree::TreeMaximum(NODE* node){
 
 void RBTree::RotateLeft(NODE* x){ // Voltar pro meu proprio rotate
     NODE* y = x->right;
-		x->right = y->left;
-		if (y->left != Tnil) {
-			y->left->parent = x;
-		}
-		y->parent = x->parent;
-		if (x->parent == nullptr) {
-			root = y;
-		} else if (x == x->parent->left) {
-			x->parent->left = y;
-		} else {
-			x->parent->right = y;
-		}
-		y->left = x;
-		x->parent = y;
+    x->right = y->left;
+    if (y->left != Tnil) {
+        y->left->parent = x;
+    }
+    y->parent = x->parent;
+    if (x->parent == Tnil) {
+        root = y;
+    } else if (x == x->parent->left) {
+        x->parent->left = y;
+    } else {
+        x->parent->right = y;
+    }
+    y->left = x;
+    x->parent = y;
+    
+    
 }
 
 void RBTree::RotateRight(NODE* x){
     NODE* y = x->left;
-		x->left = y->right;
-		if (y->right != Tnil) {
-			y->right->parent = x;
-		}
-		y->parent = x->parent;
-		if (x->parent == nullptr) {
-			root = y;
-		} else if (x == x->parent->right) {
-			x->parent->right = y;
-		} else {
-			x->parent->left = y;
-		}
-		y->right = x;
-		x->parent = y;
+    x->left = y->right;
+    if (y->right != Tnil) {
+        y->right->parent = x;
+    }
+    y->parent = x->parent;
+    if (x->parent == Tnil) {
+        root = y;
+    } else if (x == x->parent->right) {
+        x->parent->right = y;
+    } else {
+        x->parent->left = y;
+    }
+    y->right = x;
+    x->parent = y;
 }
 
 
@@ -122,8 +123,7 @@ void RBTree::InsertRepairTree(NODE* pNode){
             }
 
         }
-        if(pNode == root)
-            break;
+        
     }
     root->color = BLACK; 
 }
@@ -220,14 +220,12 @@ void RBTree::PlotRecurse(NODE* node,std::string separator,bool last)  {
 
 void RBTree::plot() {
     PlotRecurse(root,"",false);
-
-
 }
 
 
 void RBTree::insert(const int key) noexcept{
     NODE* pNode = new NODE(key,Tnil,Tnil);// left = right = Null 
-    NODE* pParent = nullptr;
+    NODE* pParent = Tnil;
     NODE* pSentinel = root;
     
     while (pSentinel != Tnil)
@@ -239,12 +237,10 @@ void RBTree::insert(const int key) noexcept{
             pSentinel = pSentinel->left;
     }
     pNode->parent= pParent;
-    if (pParent == nullptr )
+    if (pParent == Tnil )
     {
         /*Caso seja o primeiro item,sera preto e nao precisara fazer nada*/
         root = pNode;
-        pNode->color = BLACK;
-        return;
     }else{
         if(pNode->key > pParent->key)
             pParent->right = pNode;
@@ -252,9 +248,6 @@ void RBTree::insert(const int key) noexcept{
             pParent->left = pNode;
     }
 
-    if(pNode->parent->parent == nullptr){ // Testar se pode tirar isso
-        return;
-    }
 
     
     InsertRepairTree(pNode);
@@ -290,17 +283,12 @@ void RBTree::erase(const int key) {
     NODE* x;
     color_t y_original_color = y->color;
     if(z->left == Tnil){
-        std::cout<<"filho a esquerda nil\n";
         x = z->right;
         NDReplace(root,z,z->right);
     }else if(z->right == Tnil){
-        std::cout<<"filho a direita nil\n";
-
         x=z->left;
         NDReplace(root,z,z->left);
     }else{
-        std::cout<<"nenhum filho nil\n";
-
         y = TreeMinimum(z->right);
         y_original_color = y->color;
         x = y->right;
@@ -315,12 +303,13 @@ void RBTree::erase(const int key) {
         y->left = z->left;
         y->left->parent = y;
         y->color = z->color;
-        std::cout<<x->key<<std::endl;
     }
+    if(z == root)
+        root = y;
     delete z;
     z = nullptr;
+    
     if(y_original_color == BLACK)
-        // fixDelete(x);
         DeleteRepairTree(x);
 
 }
