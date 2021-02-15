@@ -1,9 +1,10 @@
 #include "RBTree.hpp"
 
+/*                                                      Funcoes Print                                                      */
 void RBTree::inOrder(NODE* n){
     if (n == Tnil) return;
     inOrder(n->left);
-    std::cout<<n->key<<" ("<<(n->color == color_t::BLACK ? "BLACK" : "RED")<<") / ";
+    std::cout<<n->key<<" ";
     inOrder(n->right);
     
 }
@@ -20,6 +21,59 @@ void RBTree::posOrder(NODE* n){
     std::cout<<n->key<<" ";
 }
 
+void RBTree::PlotRecurse(NODE* node,std::string separator,bool last)  {
+    if(node != Tnil){
+        std::cout<< separator;
+        if(last){
+            std::cout<<"R----";
+            separator+="     ";
+        }else{
+            std::cout<<"L----";
+            separator+="|    ";
+        }
+        std::cout
+            <<node->key
+            <<"("<<(node->color ? "RED" : "BLACK") <<")"<<std::endl;
+
+        PlotRecurse(node->left,separator,false);
+        PlotRecurse(node->right,separator,true);
+    }
+}
+
+void RBTree::plot() noexcept{
+    PlotRecurse(root,"",false);
+}
+
+
+NODE* RBTree::search(const int key)const noexcept{
+    NODE *pNode = root;
+    while (pNode != Tnil && pNode->key != key)
+        if(key > pNode->key) pNode = pNode->right;
+        else pNode = pNode->left;
+    return pNode;
+    
+}
+void RBTree::show(const show_t show)  noexcept{
+    switch (show)
+    {
+    case INORDER:
+        inOrder(root);
+        break;
+    case POSORDER:
+        posOrder(root);
+        break;
+    case PREORDER:
+        preOrder(root);
+        break;
+    case PLOT:
+    default:
+        plot();
+        break;
+    }
+}
+/*                                                      Funcoes Print                                                      */
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+/*                                                      Funcoes Auxiliares                                                  */
 void RBTree::NDReplace(NODE* x,NODE* y){
     if (x->parent == Tnil )
         this->root = y;
@@ -81,29 +135,31 @@ void RBTree::RotateRight(NODE* x){
     y->right = x;
     x->parent = y;
 }
-
-
+/*                                                      Funcoes Auxiliares                                                  */
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+/*                                                      Funcoes Insersao                                                  */
 void RBTree::InsertRepairTree(NODE* pNode){
     NODE* pAux;
     while (pNode->parent->color == RED)
     {
-        if(pNode->parent == pNode->parent->parent->right){
+        if(pNode->parent == pNode->parent->parent->right){//right
             pAux = pNode->parent->parent->left; // uncle
-            if(pAux->color == RED){
+            if(pAux->color == RED){//case 1
                 pAux->color = BLACK;
                 pNode->parent->color = BLACK;
                 pNode->parent->parent->color=RED;
                 pNode = pNode->parent->parent;
             }else{
-                if(pNode==pNode->parent->left){
+                if(pNode==pNode->parent->left){//case 2
                     pNode = pNode->parent;
                     RotateRight(pNode);
                 }
+                //case 3
                 pNode->parent->color = BLACK;
                 pNode->parent->parent->color = RED;
                 RotateLeft(pNode->parent->parent);
             }
-        }else{
+        }else{//left
             pAux = pNode->parent->parent->right;
             if(pAux->color == RED){
                 pAux->color = BLACK;
@@ -126,6 +182,38 @@ void RBTree::InsertRepairTree(NODE* pNode){
     }
     root->color = BLACK; 
 }
+
+
+void RBTree::insert(const int key) noexcept{
+    NODE* pNode = new NODE(key,Tnil,Tnil);// left = right = Null 
+    NODE* pParent = Tnil;
+    NODE* pSentinel = root;
+    
+    while (pSentinel != Tnil)
+    {
+        pParent = pSentinel; // Ao final do loop pParent sera o parente de pNode
+        if(pNode->key  > pSentinel->key)
+            pSentinel = pSentinel->right;
+        else 
+            pSentinel = pSentinel->left;
+    }
+    pNode->parent= pParent;
+    if (pParent == Tnil )
+    {
+        /*Caso seja o primeiro item,sera preto e nao precisara fazer nada*/
+        root = pNode;
+    }else{
+        if(pNode->key > pParent->key)
+            pParent->right = pNode;
+        else 
+            pParent->left = pNode;
+    }
+    
+    InsertRepairTree(pNode);
+}
+/*                                                      Funcoes Insersao                                                  */
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+/*                                                      Funcoes Remocao                                                   */
 
 void RBTree::DeleteRepairTree(NODE* x){
     NODE* w;
@@ -190,94 +278,6 @@ void RBTree::DeleteRepairTree(NODE* x){
     x->color = BLACK; 
     
 }
-NODE* RBTree::search(const int key)const noexcept{
-    NODE *pNode = root;
-    while (pNode != Tnil && pNode->key != key)
-        if(key > pNode->key) pNode = pNode->right;
-        else pNode = pNode->left;
-    return pNode;
-    
-}
-void RBTree::PlotRecurse(NODE* node,std::string separator,bool last)  {
-    if(node != Tnil){
-        std::cout<< separator;
-        if(last){
-            std::cout<<"R----";
-            separator+="     ";
-        }else{
-            std::cout<<"L----";
-            separator+="|    ";
-        }
-        std::cout
-            <<node->key
-            <<"("<<(node->color ? "RED" : "BLACK") <<")"<<std::endl;
-
-        PlotRecurse(node->left,separator,false);
-        PlotRecurse(node->right,separator,true);
-    }
-}
-
-void RBTree::plot() noexcept{
-    PlotRecurse(root,"",false);
-}
-
-
-void RBTree::insert(const int key) noexcept{
-    NODE* pNode = new NODE(key,Tnil,Tnil);// left = right = Null 
-    NODE* pParent = Tnil;
-    NODE* pSentinel = root;
-    
-    while (pSentinel != Tnil)
-    {
-        pParent = pSentinel; // Ao final do loop pParent sera o parente de pNode
-        if(pNode->key  > pSentinel->key)
-            pSentinel = pSentinel->right;
-        else 
-            pSentinel = pSentinel->left;
-    }
-    pNode->parent= pParent;
-    if (pParent == Tnil )
-    {
-        /*Caso seja o primeiro item,sera preto e nao precisara fazer nada*/
-        root = pNode;
-    }else{
-        if(pNode->key > pParent->key)
-            pParent->right = pNode;
-        else 
-            pParent->left = pNode;
-    }
-
-
-    
-    InsertRepairTree(pNode);
-}
-
-
-
-
-
-
-
-
-
-void RBTree::show(const show_t show)  noexcept{
-    switch (show)
-    {
-    case INORDER:
-        inOrder(root);
-        break;
-    case POSORDER:
-        posOrder(root);
-        break;
-    case PREORDER:
-        preOrder(root);
-        break;
-    case PLOT:
-    default:
-        plot();
-        break;
-    }
-}
 void RBTree::eraseTree(NODE* n){
     if (n == Tnil) return;
     eraseTree(n->left);
@@ -286,15 +286,6 @@ void RBTree::eraseTree(NODE* n){
     n = nullptr;
 
 }
-
-
-
-
-
-
-
-
-
 
 void RBTree::erase(const int key) {
     NODE* z = this->search(key);
@@ -305,6 +296,7 @@ void RBTree::erase(const int key) {
     NODE* y = z;
     NODE* x;
     color_t y_original_color = y->color;
+    //Confere se possui algum filho null
     if(z->left == Tnil){
         x = z->right;
         NDReplace(z,z->right);
@@ -313,7 +305,7 @@ void RBTree::erase(const int key) {
         x=z->left;
         NDReplace(z,z->left);
         if(z == root) root = x;
-    }else{
+    }else{//Possui 2 filhos
         y = TreeMinimum(z->right);
         y_original_color = y->color;
         x = y->right;
@@ -328,16 +320,18 @@ void RBTree::erase(const int key) {
         y->left = z->left;
         y->left->parent = y;
         y->color = z->color;
-        if(z == root)
-            root = y;
+        if(z == root) root = y;
     }
     delete z;
     z = nullptr;
     
     if(y_original_color == BLACK)
         DeleteRepairTree(x);
-
 }
+
+/*                                                      Funcoes Remocao                                                   */
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
 RBTree::RBTree(){
     Tnil = new NODE(BLACK);
     root = Tnil;
