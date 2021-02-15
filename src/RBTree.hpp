@@ -10,7 +10,7 @@ aponte para um ponto na memoria que seja do mesmo tipo do node,com cor preta
 */
 
 enum color_t{BLACK,RED};
-enum show_t{INORDER,PREORDER,POSORDER};
+enum show_t{INORDER,PREORDER,POSORDER,PLOT};
 
 struct NODE
 {
@@ -26,18 +26,16 @@ struct NODE
     key(data),parent(parent),left(left),right(right){}
 };
 
-void PreOrder(NODE* n);
-void PosOrder(NODE* n);
-void InOrder(NODE* n);
+
 
 /* Class Definition */
 class RBTree
 {
     private:
+        NODE *root;
         NODE *Tnil;
         void NDReplace(NODE* root,NODE* x,NODE* y);
         void PlotRecurse(NODE* node,std::string separator,bool last);
-
         NODE* TreeMinimum(NODE* node);
         NODE* TreeMaximum(NODE* node);
         void RotateRight(NODE* x);
@@ -45,12 +43,16 @@ class RBTree
         void InsertRepairTree(NODE* pNode);
         void DeleteRepairTree(NODE* x);
         void fixDelete(NODE* x);
+        void preOrder(NODE* n);
+        void posOrder(NODE* n);
+        void inOrder(NODE* n);
+        void eraseTree(NODE* n);
+        void  plot() noexcept;
     public:
-        void  plot() ;
-        NODE *root;
-        void show(const show_t show) const noexcept;
+
+        void show(const show_t show = PLOT)  noexcept;
         void insert(const int key)  noexcept;
-        void erase(const int key) ;
+        void erase(const int key);
         NODE* search(const int key)const noexcept;
         RBTree();
         RBTree(std::initializer_list<int> list);

@@ -1,23 +1,22 @@
 #include "RBTree.hpp"
 
-void InOrder(NODE* n){
-    if (n == nullptr) return;
-    InOrder(n->left);
-    if(n->key!=0)
-        std::cout<<n->key<<" ("<<(n->color == color_t::BLACK ? "BLACK" : "RED")<<") / ";
-    InOrder(n->right);
+void RBTree::inOrder(NODE* n){
+    if (n == Tnil) return;
+    inOrder(n->left);
+    std::cout<<n->key<<" ("<<(n->color == color_t::BLACK ? "BLACK" : "RED")<<") / ";
+    inOrder(n->right);
     
 }
-void PreOrder(NODE* n){
-    if (n == nullptr) return;
+void RBTree::preOrder(NODE* n){
+    if (n == Tnil) return;
     std::cout<<n->key<<" ";
-    PreOrder(n->left);
-    PreOrder(n->right);
+    preOrder(n->left);
+    preOrder(n->right);
 }
-void PosOrder(NODE* n){
-    if (n == nullptr) return;
-    PosOrder(n->left);
-    PosOrder(n->right);
+void RBTree::posOrder(NODE* n){
+    if (n == Tnil) return;
+    posOrder(n->left);
+    posOrder(n->right);
     std::cout<<n->key<<" ";
 }
 
@@ -45,7 +44,7 @@ NODE* RBTree::TreeMaximum(NODE* node){
     return node;
 }
 
-void RBTree::RotateLeft(NODE* x){ // Voltar pro meu proprio rotate
+void RBTree::RotateLeft(NODE* x){ 
     NODE* y = x->right;
     x->right = y->left;
     if (y->left != Tnil) {
@@ -218,7 +217,7 @@ void RBTree::PlotRecurse(NODE* node,std::string separator,bool last)  {
     }
 }
 
-void RBTree::plot() {
+void RBTree::plot() noexcept{
     PlotRecurse(root,"",false);
 }
 
@@ -261,8 +260,32 @@ void RBTree::insert(const int key) noexcept{
 
 
 
+void RBTree::show(const show_t show)  noexcept{
+    switch (show)
+    {
+    case INORDER:
+        inOrder(root);
+        break;
+    case POSORDER:
+        posOrder(root);
+        break;
+    case PREORDER:
+        preOrder(root);
+        break;
+    case PLOT:
+    default:
+        plot();
+        break;
+    }
+}
+void RBTree::eraseTree(NODE* n){
+    if (n == Tnil) return;
+    eraseTree(n->left);
+    eraseTree(n->right);
+    delete n;
+    n = nullptr;
 
-
+}
 
 
 
@@ -275,7 +298,7 @@ void RBTree::insert(const int key) noexcept{
 
 void RBTree::erase(const int key) {
     NODE* z = this->search(key);
-    if(z == Tnil) {
+    if(z == Tnil || z->key != key) {
         throw "Couldn`t find key in the tree";
         return;
     }
@@ -285,9 +308,11 @@ void RBTree::erase(const int key) {
     if(z->left == Tnil){
         x = z->right;
         NDReplace(root,z,z->right);
+        if(z == root) root = x;
     }else if(z->right == Tnil){
         x=z->left;
         NDReplace(root,z,z->left);
+        if(z == root) root = x;
     }else{
         y = TreeMinimum(z->right);
         y_original_color = y->color;
@@ -303,9 +328,9 @@ void RBTree::erase(const int key) {
         y->left = z->left;
         y->left->parent = y;
         y->color = z->color;
+        if(z == root)
+            root = y;
     }
-    if(z == root)
-        root = y;
     delete z;
     z = nullptr;
     
@@ -318,8 +343,7 @@ RBTree::RBTree(){
     root = Tnil;
 }
 RBTree::~RBTree(){
-
-    
+    eraseTree(root);
     delete Tnil;
     Tnil = nullptr;
 }
